@@ -51,9 +51,22 @@
 
             // Load word data on mount
             useEffect(() => {
+                console.log('Attempting to fetch worddata.json...');
                 fetch('worddata.json')
-                    .then(response => response.json())
+                    .then(response => {
+                        console.log('Fetch response status:', response.status);
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
                     .then(data => {
+                        console.log('Word data loaded:', {
+                            high: data.high?.length,
+                            medium: data.medium?.length,
+                            low: data.low?.length,
+                            daleChall: data.daleChall?.length
+                        });
                         // Convert arrays to Sets for fast lookup
                         setWordData({
                             high: new Set(data.high),
@@ -62,9 +75,11 @@
                             daleChall: new Set(data.daleChall)
                         });
                         setWordDataLoading(false);
+                        console.log('✓ Word data successfully loaded and converted to Sets');
                     })
                     .catch(error => {
-                        console.error('Error loading word data:', error);
+                        console.error('❌ Error loading word data:', error);
+                        alert('Failed to load vocabulary database. Familiarity and Dale-Chall scores will not be available. Error: ' + error.message);
                         setWordDataLoading(false);
                     });
             }, []);
