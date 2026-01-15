@@ -122,7 +122,7 @@
                 // Calculate vocabulary metrics if word data is loaded
                 let vocabularyMetrics = null;
                 if (wordData) {
-                    vocabularyMetrics = analyzeVocabulary(words, wordData);
+                    vocabularyMetrics = analyzeVocabulary(words, wordData, sentenceCount);
                 }
 
                 const readability = {
@@ -144,7 +144,7 @@
                 };
             };
 
-            const analyzeVocabulary = (words, data) => {
+            const analyzeVocabulary = (words, data, sentenceCount) => {
                 let highCount = 0, mediumCount = 0, lowCount = 0, unknownCount = 0;
                 let daleChallDifficult = 0;
 
@@ -162,7 +162,7 @@
 
                 const total = words.length;
                 const familiarityScore = ((mediumCount * 0.5 + lowCount * 1.0 + unknownCount * 1.5) / total) * 100;
-                const daleChallScore = calculateDaleChall(words.length, sentences.length, daleChallDifficult);
+                const daleChallScore = calculateDaleChall(words.length, sentenceCount, daleChallDifficult);
 
                 return {
                     high: { count: highCount, percentage: (highCount / total) * 100 },
