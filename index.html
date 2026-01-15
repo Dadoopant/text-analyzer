@@ -393,6 +393,7 @@
                                                 {results.basic.readingTimeMinutes < 1 ? '<1' : results.basic.readingTimeMinutes.toFixed(1)}
                                             </div>
                                             <div className="text-sm text-slate-600">Minutes (@ 200 wpm)</div>
+                                            <div className="text-xs text-slate-500 mt-1">College readers: ~250 wpm</div>
                                         </div>
                                     </div>
                                 </div>
@@ -635,7 +636,8 @@
                                                 </table>
                                             </div>
                                             <div className="border-t border-slate-600 pt-3">
-                                                <p className="text-xs"><strong>Note:</strong> Familiarity Score uses AI-estimated word familiarity (lower = more familiar). Dale-Chall uses a 3,000 common word list (higher = more difficult). Both complement the traditional readability formulas.</p>
+                                                <p className="text-xs"><strong>Reading Time:</strong> Calculated at 200 words per minute (average adult reading speed). College-educated readers typically read at ~250 wpm, while skimming can reach 400+ wpm. Technical material is generally read more slowly (~150-200 wpm).</p>
+                                                <p className="text-xs mt-2"><strong>Note:</strong> Familiarity Score uses AI-estimated word familiarity (lower = more familiar). Dale-Chall uses a 3,000 common word list (higher = more difficult). Both complement the traditional readability formulas.</p>
                                             </div>
                                         </div>
                                     </div>
