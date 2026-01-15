@@ -593,12 +593,50 @@
                                             </table>
                                             <p className="text-xs mt-2 text-slate-400">Source: goodcalculators.com/flesch-kincaid-calculator</p>
                                         </div>
-                                        <div className="border-t border-slate-600 pt-3 space-y-2">
-                                            <p><strong>Familiarity Score (GPT-4):</strong> Under 15 = very familiar, 15-30 = familiar, 30-45 = moderate, 45-60 = challenging, 60+ = very challenging. Based on AI estimates of how familiar words are to readers.</p>
-                                            <p><strong>Dale-Chall:</strong> Below 5 = elementary, 5-7 = middle school, 7-9 = high school, 9+ = college. Based on whether words appear in a list of 3,000 common words from the 1940s.</p>
-                                            <p><strong>Grade Level Scores:</strong> Indicate years of education needed. Most news writing targets 8th-10th grade.</p>
-                                            <p><strong>Complex Words:</strong> 15-18% is typical for accessible journalism; academic writing often runs 20-25%.</p>
-                                            <p><strong>Lexical Diversity:</strong> 40-60% is typical; below 40% suggests repetitive vocabulary.</p>
+                                        <div className="border-t border-slate-600 pt-3 space-y-3">
+                                            <div>
+                                                <p className="font-semibold mb-2">Familiarity Score (GPT-4) Reference:</p>
+                                                <table className="w-full text-xs border-collapse">
+                                                    <thead>
+                                                        <tr className="border-b border-slate-600">
+                                                            <th className="text-left py-2 px-2">Score Range</th>
+                                                            <th className="text-left py-2 px-2">Difficulty Level</th>
+                                                            <th className="text-left py-2 px-2">Example</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr className="border-b border-slate-700"><td className="py-1.5 px-2">0 to 15</td><td className="py-1.5 px-2">Very Familiar</td><td className="py-1.5 px-2">Hemingway, Gettysburg Address</td></tr>
+                                                        <tr className="border-b border-slate-700"><td className="py-1.5 px-2">15 to 30</td><td className="py-1.5 px-2">Familiar</td><td className="py-1.5 px-2">Dr. Seuss, Mary Had a Little Lamb</td></tr>
+                                                        <tr className="border-b border-slate-700"><td className="py-1.5 px-2">30 to 45</td><td className="py-1.5 px-2">Moderate</td><td className="py-1.5 px-2">Standard journalism</td></tr>
+                                                        <tr className="border-b border-slate-700"><td className="py-1.5 px-2">45 to 60</td><td className="py-1.5 px-2">Challenging</td><td className="py-1.5 px-2">Academic writing</td></tr>
+                                                        <tr><td className="py-1.5 px-2">60+</td><td className="py-1.5 px-2">Very Challenging</td><td className="py-1.5 px-2">Specialized/technical prose</td></tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold mb-2">Dale-Chall Score Reference:</p>
+                                                <table className="w-full text-xs border-collapse">
+                                                    <thead>
+                                                        <tr className="border-b border-slate-600">
+                                                            <th className="text-left py-2 px-2">Score Range</th>
+                                                            <th className="text-left py-2 px-2">Grade Level</th>
+                                                            <th className="text-left py-2 px-2">Example</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr className="border-b border-slate-700"><td className="py-1.5 px-2">Below 5.0</td><td className="py-1.5 px-2">Grade 4 and below</td><td className="py-1.5 px-2">Dr. Seuss, Mary Had a Little Lamb</td></tr>
+                                                        <tr className="border-b border-slate-700"><td className="py-1.5 px-2">5.0 to 6.0</td><td className="py-1.5 px-2">Grades 5-6</td><td className="py-1.5 px-2">Simple children's books</td></tr>
+                                                        <tr className="border-b border-slate-700"><td className="py-1.5 px-2">6.0 to 7.0</td><td className="py-1.5 px-2">Grades 7-8</td><td className="py-1.5 px-2">Middle school texts</td></tr>
+                                                        <tr className="border-b border-slate-700"><td className="py-1.5 px-2">7.0 to 8.0</td><td className="py-1.5 px-2">Grades 9-10</td><td className="py-1.5 px-2">Gettysburg Address, early high school</td></tr>
+                                                        <tr className="border-b border-slate-700"><td className="py-1.5 px-2">8.0 to 9.0</td><td className="py-1.5 px-2">Grades 11-12</td><td className="py-1.5 px-2">Late high school</td></tr>
+                                                        <tr className="border-b border-slate-700"><td className="py-1.5 px-2">9.0 to 10.0</td><td className="py-1.5 px-2">Grades 13-15</td><td className="py-1.5 px-2">College, newspaper articles</td></tr>
+                                                        <tr><td className="py-1.5 px-2">10.0+</td><td className="py-1.5 px-2">Grade 16+</td><td className="py-1.5 px-2">Academic journals, dense prose</td></tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div className="border-t border-slate-600 pt-3">
+                                                <p className="text-xs"><strong>Note:</strong> Familiarity Score uses AI-estimated word familiarity (lower = more familiar). Dale-Chall uses a 3,000 common word list (higher = more difficult). Both complement the traditional readability formulas.</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
