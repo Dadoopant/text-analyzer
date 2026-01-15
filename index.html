@@ -585,6 +585,25 @@
                                     </div>
                                 )}
 
+                                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg shadow-lg p-6 border-2 border-blue-200">
+                                    <h2 className="text-2xl font-bold text-slate-800 mb-3">Summary for Text-to-Speech Integration</h2>
+                                    <p className="text-sm text-slate-600 mb-4">Copy this text for audio conversion projects:</p>
+                                    <textarea
+                                        readOnly
+                                        value={`Words: ${results.basic.wordCount}
+Reading Time: ${results.basic.readingTimeMinutes.toFixed(1)} minutes (@ 200 wpm)
+Flesch Reading Ease: ${results.readability.fleschReading.toFixed(1)}${results.vocabulary ? `
+Familiarity Score: ${results.vocabulary.familiarityScore.toFixed(1)}
+Dale-Chall: ${results.vocabulary.daleChall.score.toFixed(1)}` : ''}
+SMOG Index: ${results.readability.smog.toFixed(1)}
+Gunning Fog Index: ${results.readability.gunningFog.toFixed(1)}`}
+                                        className="w-full p-4 bg-white border-2 border-blue-300 rounded font-mono text-sm resize-none"
+                                        rows="8"
+                                        onClick={(e) => e.target.select()}
+                                    />
+                                    <p className="text-xs text-slate-500 mt-2">Click inside the box to select all text, then copy (Ctrl+C / Cmd+C)</p>
+                                </div>
+
                                 <div className="bg-slate-800 text-white rounded-lg shadow-lg p-6">
                                     <h2 className="text-xl font-bold mb-3">Interpretation Guide</h2>
                                     <div className="space-y-4 text-sm">
@@ -655,6 +674,22 @@
                                                 <p className="text-xs mt-2"><strong>Note:</strong> Familiarity Score uses AI-estimated word familiarity (lower = more familiar). Dale-Chall uses a 3,000 common word list (higher = more difficult). Both complement the traditional readability formulas.</p>
                                             </div>
                                         </div>
+                                    </div>
+                                </div>
+
+                                <div className="bg-white rounded-lg shadow-lg p-6 border-2 border-blue-200">
+                                    <h2 className="text-2xl font-bold text-slate-800 mb-3">Quick Summary (Copy-Paste Ready)</h2>
+                                    <div className="bg-slate-50 p-4 rounded font-mono text-sm space-y-1">
+                                        <div>Words: {results.basic.wordCount.toLocaleString()}</div>
+                                        <div>Reading time: {results.basic.readingTimeMinutes < 1 ? 'Under 1' : results.basic.readingTimeMinutes.toFixed(1)} minutes (@ 200 wpm)</div>
+                                        {results.vocabulary && (
+                                            <>
+                                                <div>Familiarity Score: {results.vocabulary.familiarityScore.toFixed(1)} ({getFamiliarityInterpretation(results.vocabulary.familiarityScore).level})</div>
+                                                <div>Dale-Chall: {results.vocabulary.daleChall.score.toFixed(1)} ({getDaleChallInterpretation(results.vocabulary.daleChall.score).level})</div>
+                                            </>
+                                        )}
+                                        <div>Gunning Fog: {results.readability.gunningFog.toFixed(1)} ({getReadabilityInterpretation(results.readability.gunningFog, 'grade').level})</div>
+                                        <div>SMOG: {results.readability.smog.toFixed(1)} ({getReadabilityInterpretation(results.readability.smog, 'grade').level})</div>
                                     </div>
                                 </div>
                             </div>
