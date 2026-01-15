@@ -1,0 +1,380 @@
+import React, { useState } from 'react';
+import { Upload, FileText, BarChart3 } from 'lucide-react';
+
+export default function TextAnalyzer() {
+  const [text, setText] = useState('');
+  const [results, setResults] = useState(null);
+
+  const analyzeText = () => {
+    if (!text.trim()) {
+      alert('Please enter some text to analyze');
+      return;
+    }
+
+    try {
+      // Basic counts
+      const words = text.trim().split(/\s+/).filter(w => w.length > 0);
+      const wordCount = words.length;
+    const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    const sentenceCount = sentences.length;
+    const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim().length > 0);
+    const paragraphCount = paragraphs.length;
+
+    // Character and syllable analysis
+    const characters = text.replace(/\s/g, '').length;
+    const syllables = countSyllables(text);
+    const complexWords = words.filter(w => countWordSyllables(w) >= 3).length;
+
+    // Average metrics
+    const avgSentenceLength = wordCount / sentenceCount;
+    const avgWordLength = characters / wordCount;
+    const avgSyllablesPerWord = syllables / wordCount;
+    const complexWordPercentage = (complexWords / wordCount) * 100;
+
+    // Sentence length analysis
+    const sentenceLengths = sentences.map(s => s.trim().split(/\s+/).length);
+    const longestSentence = Math.max(...sentenceLengths);
+    const shortestSentence = Math.min(...sentenceLengths);
+
+    // Paragraph length analysis
+    const paragraphLengths = paragraphs.map(p => p.trim().split(/\s+/).length);
+    const avgParagraphLength = paragraphLengths.reduce((a, b) => a + b, 0) / paragraphCount;
+
+    // Lexical diversity
+    const uniqueWords = new Set(words.map(w => w.toLowerCase()));
+    const lexicalDiversity = (uniqueWords.size / wordCount) * 100;
+
+    // Reading time (at 200 words per minute)
+    const readingTimeMinutes = wordCount / 200;
+
+    // Readability scores
+    const readability = {
+      fleschReading: calculateFleschReading(wordCount, sentenceCount, syllables),
+      fleschKincaid: calculateFleschKincaid(wordCount, sentenceCount, syllables),
+      gunningFog: calculateGunningFog(wordCount, sentenceCount, complexWords),
+      smog: calculateSMOG(sentenceCount, complexWords),
+      ari: calculateARI(characters, wordCount, sentenceCount),
+      colemanLiau: calculateColemanLiau(characters, wordCount, sentenceCount)
+    };
+
+    setResults({
+      basic: { wordCount, sentenceCount, paragraphCount, readingTimeMinutes },
+      averages: { 
+        avgSentenceLength, 
+        avgWordLength, 
+        avgSyllablesPerWord,
+        avgParagraphLength 
+      },
+      complexity: { 
+        complexWords, 
+        complexWordPercentage, 
+        lexicalDiversity,
+        syllables
+      },
+      sentenceStats: { longestSentence, shortestSentence },
+      readability
+    });
+    } catch (error) {
+      console.error('Analysis error:', error);
+      alert('Error analyzing text: ' + error.message);
+    }
+  };
+
+  const countWordSyllables = (word) => {
+    word = word.toLowerCase().replace(/[^a-z]/g, '');
+    if (word.length <= 3) return 1;
+    
+    word = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '');
+    word = word.replace(/^y/, '');
+    const syllableMatches = word.match(/[aeiouy]{1,2}/g);
+    return syllableMatches ? syllableMatches.length : 1;
+  };
+
+  const countSyllables = (text) => {
+    const words = text.toLowerCase().split(/\s+/).filter(w => w.length > 0);
+    return words.reduce((total, word) => total + countWordSyllables(word), 0);
+  };
+
+  const calculateFleschReading = (words, sentences, syllables) => {
+    return 206.835 - 1.015 * (words / sentences) - 84.6 * (syllables / words);
+  };
+
+  const calculateFleschKincaid = (words, sentences, syllables) => {
+    return 0.39 * (words / sentences) + 11.8 * (syllables / words) - 15.59;
+  };
+
+  const calculateGunningFog = (words, sentences, complexWords) => {
+    return 0.4 * ((words / sentences) + 100 * (complexWords / words));
+  };
+
+  const calculateSMOG = (sentences, complexWords) => {
+    return 1.0430 * Math.sqrt(complexWords * (30 / sentences)) + 3.1291;
+  };
+
+  const calculateARI = (characters, words, sentences) => {
+    return 4.71 * (characters / words) + 0.5 * (words / sentences) - 21.43;
+  };
+
+  const calculateColemanLiau = (characters, words, sentences) => {
+    const L = (characters / words) * 100;
+    const S = (sentences / words) * 100;
+    return 0.0588 * L - 0.296 * S - 15.8;
+  };
+
+  const getReadabilityInterpretation = (score, type) => {
+    if (type === 'flesch') {
+      if (score >= 90) return { level: 'Very Easy', grade: '5th grade', color: 'text-green-600' };
+      if (score >= 80) return { level: 'Easy', grade: '6th grade', color: 'text-green-500' };
+      if (score >= 70) return { level: 'Fairly Easy', grade: '7th grade', color: 'text-blue-600' };
+      if (score >= 60) return { level: 'Standard', grade: '8th-9th grade', color: 'text-blue-500' };
+      if (score >= 50) return { level: 'Fairly Difficult', grade: '10th-12th grade', color: 'text-yellow-600' };
+      if (score >= 30) return { level: 'Difficult', grade: 'College', color: 'text-orange-600' };
+      return { level: 'Very Difficult', grade: 'College graduate', color: 'text-red-600' };
+    } else {
+      // For grade-level scores
+      if (score < 6) return { level: 'Elementary', color: 'text-green-600' };
+      if (score < 9) return { level: 'Middle School', color: 'text-blue-600' };
+      if (score < 13) return { level: 'High School', color: 'text-yellow-600' };
+      if (score < 16) return { level: 'College', color: 'text-orange-600' };
+      return { level: 'Graduate', color: 'text-red-600' };
+    }
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type === 'text/plain') {
+      const reader = new FileReader();
+      reader.onload = (event) => setText(event.target.result);
+      reader.readAsText(file);
+    }
+  };
+
+  const getInsights = () => {
+    if (!results) return [];
+    
+    const insights = [];
+    const { readability, averages, complexity, sentenceStats } = results;
+
+    // Check for score discrepancies
+    const grades = [
+      readability.fleschKincaid,
+      readability.gunningFog,
+      readability.smog,
+      readability.ari,
+      readability.colemanLiau
+    ];
+    const maxGrade = Math.max(...grades);
+    const minGrade = Math.min(...grades);
+    
+    if (maxGrade - minGrade > 4) {
+      insights.push({
+        type: 'warning',
+        text: `Notable score variation: readability measures range from ${minGrade.toFixed(1)} to ${maxGrade.toFixed(1)} grade level—suggests mixed complexity.`
+      });
+    }
+
+    // Long sentences
+    if (sentenceStats.longestSentence > 40) {
+      insights.push({
+        type: 'alert',
+        text: `Longest sentence: ${sentenceStats.longestSentence} words—consider breaking up for clarity.`
+      });
+    }
+
+    // High complexity
+    if (complexity.complexWordPercentage > 20) {
+      insights.push({
+        type: 'info',
+        text: `${complexity.complexWordPercentage.toFixed(1)}% complex words (3+ syllables)—higher than typical journalism (15-18%).`
+      });
+    }
+
+    // Lexical diversity
+    if (complexity.lexicalDiversity < 40) {
+      insights.push({
+        type: 'info',
+        text: `Lexical diversity at ${complexity.lexicalDiversity.toFixed(1)}%—relatively repetitive vocabulary.`
+      });
+    }
+
+    return insights;
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-slate-800 mb-2">Text Readability Analyzer</h1>
+          <p className="text-slate-600">Comprehensive metrics for academic articles, journalism, and any written content</p>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-semibold text-slate-700">
+                <FileText className="inline w-4 h-4 mr-1" />
+                Input Text
+              </label>
+              <label className="cursor-pointer flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded text-sm text-slate-700 transition-colors">
+                <Upload className="w-4 h-4" />
+                Upload .txt
+                <input type="file" accept=".txt" onChange={handleFileUpload} className="hidden" />
+              </label>
+            </div>
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Paste your text here, or upload a .txt file above..."
+              className="w-full h-64 p-4 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none resize-none font-mono text-sm"
+            />
+          </div>
+          
+          <button
+            onClick={analyzeText}
+            disabled={!text.trim()}
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+          >
+            <BarChart3 className="w-5 h-5" />
+            Analyze Text
+          </button>
+        </div>
+
+        {results && (
+          <div className="space-y-6">
+            {/* Basic Metrics */}
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <h2 className="text-2xl font-bold text-slate-800 mb-4">Overview</h2>
+              <div className="grid grid-cols-4 gap-4">
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="text-3xl font-bold text-blue-600">{results.basic.wordCount.toLocaleString()}</div>
+                  <div className="text-sm text-slate-600">Words</div>
+                </div>
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <div className="text-3xl font-bold text-green-600">{results.basic.sentenceCount}</div>
+                  <div className="text-sm text-slate-600">Sentences</div>
+                </div>
+                <div className="bg-purple-50 p-4 rounded-lg">
+                  <div className="text-3xl font-bold text-purple-600">{results.basic.paragraphCount}</div>
+                  <div className="text-sm text-slate-600">Paragraphs</div>
+                </div>
+                <div className="bg-amber-50 p-4 rounded-lg">
+                  <div className="text-3xl font-bold text-amber-600">
+                    {results.basic.readingTimeMinutes < 1 
+                      ? '<1' 
+                      : results.basic.readingTimeMinutes.toFixed(1)}
+                  </div>
+                  <div className="text-sm text-slate-600">Minutes (@ 200 wpm)</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Readability Scores */}
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <h2 className="text-2xl font-bold text-slate-800 mb-4">Readability Scores</h2>
+              <div className="space-y-3">
+                {[
+                  { name: 'Flesch Reading Ease', score: results.readability.fleschReading, type: 'flesch', inverse: true },
+                  { name: 'Flesch-Kincaid Grade Level', score: results.readability.fleschKincaid, type: 'grade' },
+                  { name: 'Gunning Fog Index', score: results.readability.gunningFog, type: 'grade' },
+                  { name: 'SMOG Index', score: results.readability.smog, type: 'grade' },
+                  { name: 'Automated Readability Index (ARI)', score: results.readability.ari, type: 'grade' },
+                  { name: 'Coleman-Liau Index', score: results.readability.colemanLiau, type: 'grade' }
+                ].map((metric) => {
+                  const interp = getReadabilityInterpretation(metric.score, metric.type);
+                  return (
+                    <div key={metric.name} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                      <div className="flex-1">
+                        <div className="font-semibold text-slate-700">{metric.name}</div>
+                        <div className={`text-sm ${interp.color}`}>
+                          {metric.type === 'flesch' ? `${interp.level} (${interp.grade})` : interp.level}
+                        </div>
+                      </div>
+                      <div className="text-2xl font-bold text-slate-800">
+                        {metric.score.toFixed(1)}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Lexical Complexity */}
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <h2 className="text-2xl font-bold text-slate-800 mb-4">Lexical Complexity</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-slate-50 rounded-lg">
+                  <div className="text-sm text-slate-600 mb-1">Average Word Length</div>
+                  <div className="text-2xl font-bold text-slate-800">{results.averages.avgWordLength.toFixed(2)} characters</div>
+                </div>
+                <div className="p-4 bg-slate-50 rounded-lg">
+                  <div className="text-sm text-slate-600 mb-1">Syllables per Word</div>
+                  <div className="text-2xl font-bold text-slate-800">{results.averages.avgSyllablesPerWord.toFixed(2)}</div>
+                </div>
+                <div className="p-4 bg-slate-50 rounded-lg">
+                  <div className="text-sm text-slate-600 mb-1">Complex Words (3+ syllables)</div>
+                  <div className="text-2xl font-bold text-slate-800">{results.complexity.complexWords} ({results.complexity.complexWordPercentage.toFixed(1)}%)</div>
+                </div>
+                <div className="p-4 bg-slate-50 rounded-lg">
+                  <div className="text-sm text-slate-600 mb-1">Lexical Diversity</div>
+                  <div className="text-2xl font-bold text-slate-800">{results.complexity.lexicalDiversity.toFixed(1)}%</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Structural Insights */}
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <h2 className="text-2xl font-bold text-slate-800 mb-4">Structural Patterns</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-slate-50 rounded-lg">
+                  <div className="text-sm text-slate-600 mb-1">Average Sentence Length</div>
+                  <div className="text-2xl font-bold text-slate-800">{results.averages.avgSentenceLength.toFixed(1)} words</div>
+                </div>
+                <div className="p-4 bg-slate-50 rounded-lg">
+                  <div className="text-sm text-slate-600 mb-1">Average Paragraph Length</div>
+                  <div className="text-2xl font-bold text-slate-800">{results.averages.avgParagraphLength.toFixed(1)} words</div>
+                </div>
+                <div className="p-4 bg-slate-50 rounded-lg">
+                  <div className="text-sm text-slate-600 mb-1">Longest Sentence</div>
+                  <div className="text-2xl font-bold text-slate-800">{results.sentenceStats.longestSentence} words</div>
+                </div>
+                <div className="p-4 bg-slate-50 rounded-lg">
+                  <div className="text-sm text-slate-600 mb-1">Shortest Sentence</div>
+                  <div className="text-2xl font-bold text-slate-800">{results.sentenceStats.shortestSentence} words</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Insights */}
+            {getInsights().length > 0 && (
+              <div className="bg-white rounded-lg shadow-lg p-6">
+                <h2 className="text-2xl font-bold text-slate-800 mb-4">Analytical Insights</h2>
+                <div className="space-y-2">
+                  {getInsights().map((insight, idx) => (
+                    <div key={idx} className={`p-3 rounded-lg ${
+                      insight.type === 'warning' ? 'bg-yellow-50 border border-yellow-200' :
+                      insight.type === 'alert' ? 'bg-red-50 border border-red-200' :
+                      'bg-blue-50 border border-blue-200'
+                    }`}>
+                      <p className="text-sm text-slate-700">{insight.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Interpretation Guide */}
+            <div className="bg-slate-800 text-white rounded-lg shadow-lg p-6">
+              <h2 className="text-xl font-bold mb-3">Reading These Results</h2>
+              <div className="space-y-2 text-sm">
+                <p><strong>Flesch Reading Ease:</strong> Higher scores = easier reading (0-100 scale). Typical journalism targets 60-70.</p>
+                <p><strong>Grade Level Scores:</strong> Indicate years of education needed. Most news writing aims for 8th-10th grade.</p>
+                <p><strong>Complex Words:</strong> 15-18% is typical for accessible journalism; academic writing often runs 20-25%.</p>
+                <p><strong>Lexical Diversity:</strong> 40-60% is typical; below 40% suggests repetitive vocabulary.</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
